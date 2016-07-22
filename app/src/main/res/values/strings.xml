@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">catalog</string>
+
+    <string name="err_timeout">요청시간이 초과되었습니다.</string>
+    <string name="err_no_connection">인터넷 연결상태를 확인해주세요.</string>
+    <string name="err_network">네트워크 상태를 확인해주세요.</string>
+    <string name="err_server">서버에 오류가 있습니다.</string>
+    <string name="err_unexpected">정의되지 않은 에러입니다.</string>
+</resources>
