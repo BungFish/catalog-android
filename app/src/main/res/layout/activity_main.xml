@@ -12,9 +12,9 @@
         android:layout_height="match_parent">
 
         <com.slogup.catalog.SurfacePreview
-            android:id="@+id/surfaceView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+        android:id="@+id/surfaceView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
         <com.slogup.catalog.ScalableImageView
             android:id="@+id/imageView"
@@ -38,13 +38,28 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/productTitle"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="LG전자 R-M441GCV"
-                android:textColor="@color/colorText"
-                android:textSize="18sp" />
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/manufacturer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="LG전자"
+                    android:textColor="@color/colorText"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/productName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:text="R-M441GCV"
+                    android:textColor="@color/colorText"
+                    android:textSize="18sp" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/productPrice"
@@ -53,8 +68,17 @@
                 android:layout_marginTop="6dp"
                 android:text="1,004,800원"
                 android:textColor="@color/colorText"
-                android:textSize="18sp"
+                android:textSize="14sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/productDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="크기: 912 x 1385 x 723mm"
+                android:textColor="@color/colorText"
+                android:textSize="14sp" />
         </LinearLayout>
 
         <View
@@ -97,21 +121,21 @@
         android:layout_centerInParent="true"
         android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="horizontal">
+        <!--<LinearLayout-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:orientation="horizontal">-->
 
-            <TextView
-                android:id="@+id/productCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="1/20"
-                android:textColor="@color/colorText"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+            <!--<TextView-->
+                <!--android:id="@+id/productCount"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="1/20"-->
+                <!--android:textColor="@color/colorText"-->
+                <!--android:textSize="16sp"-->
+                <!--android:textStyle="bold" />-->
+        <!--</LinearLayout>-->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -120,28 +144,28 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
+            <!--<LinearLayout-->
+                <!--android:layout_width="0dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="1"-->
+                <!--android:gravity="center"-->
+                <!--android:orientation="vertical">-->
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/location_xxhdpi" />
+                <!--<ImageView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:src="@drawable/location_xxhdpi" />-->
 
-                <TextView
-                    android:id="@+id/locationInfo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center"
-                    android:text="위치안내"
-                    android:textColor="@color/colorText"
-                    android:textSize="16sp" />
-            </LinearLayout>
+                <!--<TextView-->
+                    <!--android:id="@+id/locationInfo"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_marginTop="8dp"-->
+                    <!--android:gravity="center"-->
+                    <!--android:text="위치안내"-->
+                    <!--android:textColor="@color/colorText"-->
+                    <!--android:textSize="16sp" />-->
+            <!--</LinearLayout>-->
 
 
             <ImageView
@@ -154,28 +178,28 @@
                 android:gravity="center"
                 android:src="@drawable/camera_xxhdpi" />
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
+            <!--<LinearLayout-->
+                <!--android:layout_width="0dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="1"-->
+                <!--android:gravity="center"-->
+                <!--android:orientation="vertical">-->
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/location_xxhdpi" />
+                <!--<ImageView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:src="@drawable/location_xxhdpi" />-->
 
-                <TextView
-                    android:id="@+id/phoneLink"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center"
-                    android:text="대표전화"
-                    android:textColor="@color/colorText"
-                    android:textSize="16sp" />
-            </LinearLayout>
+                <!--<TextView-->
+                    <!--android:id="@+id/phoneLink"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_marginTop="8dp"-->
+                    <!--android:gravity="center"-->
+                    <!--android:text="대표전화"-->
+                    <!--android:textColor="@color/colorText"-->
+                    <!--android:textSize="16sp" />-->
+            <!--</LinearLayout>-->
 
 
             <Button
@@ -187,6 +211,23 @@
                 android:text="갤러리"
                 android:visibility="gone" />
         </LinearLayout>
+
+        <TextView
+            android:layout_marginLeft="16dp"
+            android:layout_marginBottom="6dp"
+            android:id="@+id/productCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1/20"
+            android:textColor="@color/colorText"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/product_list"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:clipToPadding="false" />
     </LinearLayout>
 
 

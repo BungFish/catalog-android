@@ -10,7 +10,6 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.net.Uri;
@@ -19,6 +18,8 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -29,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.slogup.catalog.adapter.ProductRecyclerAdapter;
 import com.slogup.catalog.manager.AppManager;
 import com.slogup.catalog.models.Metadata;
 import com.slogup.catalog.models.Product;
@@ -48,7 +50,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ProductRecyclerAdapter.ClickListener {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
@@ -64,9 +66,13 @@ public class MainActivity extends AppCompatActivity {
     private int productPosition = 0;
     private int tempPosition = 0;
     private TextView productCountTextView;
-    private TextView productTitleTextView;
+    private TextView productNameTextView;
     private TextView productPriceTextView;
     private ArrayList<Product> mProductArrayList;
+    private TextView manufacturerTextView;
+    private TextView productDescriptionTextView;
+    private RecyclerView productRecyclerView;
+    private ProductRecyclerAdapter productRecyclerAdapter;
 
 
     @Override
@@ -83,8 +89,21 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        productTitleTextView = (TextView) findViewById(R.id.productTitle);
+        productRecyclerView = (RecyclerView) findViewById(R.id.product_list);
+        LinearLayoutManager mMyHamlinearLayoutManager = new LinearLayoutManager(this);
+        mMyHamlinearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        mMyHamlinearLayoutManager.setSmoothScrollbarEnabled(true);
+        productRecyclerView.setLayoutManager(mMyHamlinearLayoutManager);
+
+        productRecyclerAdapter = new ProductRecyclerAdapter(this);
+        productRecyclerAdapter.setClickListener(this);
+        productRecyclerView.setAdapter(productRecyclerAdapter);
+
+        manufacturerTextView = (TextView) findViewById(R.id.manufacturer);
+        productNameTextView = (TextView) findViewById(R.id.productName);
         productPriceTextView = (TextView) findViewById(R.id.productPrice);
+        productDescriptionTextView = (TextView) findViewById(R.id.productDescription);
+
         productCountTextView = (TextView) findViewById(R.id.productCount);
 
         shareLayout = (FrameLayout) findViewById(R.id.shareLayout);
@@ -119,12 +138,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (productPosition > 0) {
                     productPosition--;
-
-                    Glide.with(getApplicationContext()).load(
-                            APIConstants.ROOT_URL_DEVELOPMENT + AppManager.meta.getRootUrl() + mProductArrayList.get(productPosition).getProductImageArrayList().get(tempPosition).getImageUrl())
-                            .into(mImageView);
-                    productCountTextView.setText((productPosition + 1) + "/" + mProductArrayList.size());
-
+                    setMainView(productPosition, tempPosition);
                 } else {
                     Toast.makeText(getApplicationContext(), "처음 제품 입니다", Toast.LENGTH_SHORT).show();
                 }
@@ -136,19 +150,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (productPosition < mProductArrayList.size() - 1) {
                     productPosition++;
-                    Glide.with(getApplicationContext()).load(
-                            APIConstants.ROOT_URL_DEVELOPMENT + AppManager.meta.getRootUrl() + mProductArrayList.get(productPosition).getProductImageArrayList().get(tempPosition).getImageUrl())
-                            .into(mImageView);
-                    productCountTextView.setText(String.valueOf((productPosition + 1) + "/" + mProductArrayList.size()));
+                    setMainView(productPosition, tempPosition);
                 } else {
                     Toast.makeText(getApplicationContext(), "마지막 제품 입니다", Toast.LENGTH_SHORT).show();
                 }
 
             }
         });
-
-        productCountTextView.setText((productPosition + 1) + "/" + drawableArray.size());
-
     }
 
     public void capture() {
@@ -319,9 +327,8 @@ public class MainActivity extends AppCompatActivity {
                         mProductArrayList.add(product);
                     }
 
-                    Glide.with(getApplicationContext()).load(
-                            APIConstants.ROOT_URL_DEVELOPMENT + AppManager.meta.getRootUrl() + mProductArrayList.get(productPosition).getProductImageArrayList().get(tempPosition).getImageUrl())
-                            .into(mImageView);
+                    setMainView(productPosition, tempPosition);
+                    productRecyclerAdapter.setData(mProductArrayList);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -357,4 +364,21 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public void setMainView(int productPosition, int tempPosition) {
+
+        manufacturerTextView.setText(mProductArrayList.get(productPosition).getManufacturer());
+        productNameTextView.setText(mProductArrayList.get(productPosition).getProductName());
+        productPriceTextView.setText(CommonHelper.moneyFormatter(mProductArrayList.get(productPosition).getPrice()));
+        productDescriptionTextView.setText(mProductArrayList.get(productPosition).getDescription());
+
+        Glide.with(getApplicationContext()).load(CommonHelper.urlFormatter(mProductArrayList.get(productPosition), tempPosition)).into(mImageView);
+        productCountTextView.setText((this.productPosition + 1) + "/" + mProductArrayList.size());
+    }
+
+    @Override
+    public void itemClick(View view, int position) {
+
+        productPosition = position;
+        setMainView(productPosition, tempPosition);
+    }
 }
