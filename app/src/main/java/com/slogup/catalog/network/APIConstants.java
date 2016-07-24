@@ -6,7 +6,7 @@ package com.slogup.catalog.network;
 public class APIConstants {
 
     //Development
-    public static final String ROOT_URL_DEVELOPMENT = "http://192.168.0.125:3001/";
+    public static final String ROOT_URL_DEVELOPMENT = "http://192.168.137.111:3001/";
     //Production
     public static final String ROOT_URL_PRODUCTION = "http://192.168.0.125:3001/";
 

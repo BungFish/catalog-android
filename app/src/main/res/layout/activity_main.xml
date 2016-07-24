@@ -11,17 +11,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.slogup.catalog.SurfacePreview
+        <com.slogup.catalog.custom_widget.SurfacePreview
         android:id="@+id/surfaceView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-        <com.slogup.catalog.ScalableImageView
+        <com.slogup.catalog.custom_widget.ScalableImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="matrix"
-            android:src="@drawable/sample" />
+            android:scaleType="matrix" />
     </FrameLayout>
 
     <LinearLayout
@@ -224,6 +223,7 @@
             android:textStyle="bold" />
 
         <android.support.v7.widget.RecyclerView
+            android:background="@color/colorBackground"
             android:id="@+id/product_list"
             android:layout_width="match_parent"
             android:layout_height="120dp"

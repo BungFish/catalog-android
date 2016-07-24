@@ -1,4 +1,4 @@
-package com.slogup.catalog;
+package com.slogup.catalog.custom_widget;
 
 import android.app.Activity;
 import android.content.Context;
@@ -17,6 +17,8 @@ import android.util.Log;
 import android.view.Display;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import com.slogup.catalog.R;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
@@ -142,10 +144,13 @@ public class SurfacePreview extends SurfaceView implements SurfaceHolder.Callbac
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        mCamera.stopPreview();
-        mCamera.setPreviewCallback(null);
-        mCamera.release();
-        mCamera = null;
+
+        if (mCamera != null) {
+            mCamera.stopPreview();
+            mCamera.setPreviewCallback(null);
+            mCamera.release();
+            mCamera = null;
+        }
 
     }
 

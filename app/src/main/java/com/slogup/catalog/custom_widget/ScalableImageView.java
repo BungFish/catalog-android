@@ -1,4 +1,4 @@
-package com.slogup.catalog;
+package com.slogup.catalog.custom_widget;
 
 import android.content.Context;
 import android.graphics.Matrix;

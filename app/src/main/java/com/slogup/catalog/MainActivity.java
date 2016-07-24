@@ -3,6 +3,7 @@ package com.slogup.catalog;
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,6 +13,7 @@ import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -31,6 +33,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.slogup.catalog.adapter.ProductRecyclerAdapter;
+import com.slogup.catalog.custom_widget.SimpleProgressDialog;
+import com.slogup.catalog.custom_widget.SurfacePreview;
 import com.slogup.catalog.manager.AppManager;
 import com.slogup.catalog.models.Metadata;
 import com.slogup.catalog.models.Product;
@@ -54,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
+    private Context _this = this;
     public static Bitmap shareBitmap;
     private FrameLayout shareLayout;
     private ImageView captureButton;
@@ -68,16 +73,22 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
     private TextView productCountTextView;
     private TextView productNameTextView;
     private TextView productPriceTextView;
-    private ArrayList<Product> mProductArrayList;
+    private ArrayList<Product> mProductArrayList = new ArrayList<>();
     private TextView manufacturerTextView;
     private TextView productDescriptionTextView;
     private RecyclerView productRecyclerView;
     private ProductRecyclerAdapter productRecyclerAdapter;
-
+    private SimpleProgressDialog mSimpleProgressDialog;
+    private MediaScannerConnection mediaScannerConnection;
+    private String folder;
+    private String filename;
+    private File myImage;
+    private File storagePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mSimpleProgressDialog = new SimpleProgressDialog(this);
 
         appInit();
 
@@ -160,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
     }
 
     public void capture() {
-
+        mSimpleProgressDialog.show();
         Camera.Parameters params = SurfacePreview.mCamera.getParameters();
 
         int w = params.getPreviewSize().width;
@@ -210,14 +221,14 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
 //            e.printStackTrace();
 //        }
 
-        String folder = "/catalog/";
-        String filename = System.currentTimeMillis() + ".jpg";
+        folder = "/catalog/";
+        filename = System.currentTimeMillis() + ".jpg";
 
-        File storagePath = new File(Environment.
+        storagePath = new File(Environment.
                 getExternalStorageDirectory() + folder);
         storagePath.mkdirs();
 
-        File myImage = new File(storagePath, filename);
+        myImage = new File(storagePath, filename);
 
         try {
             FileOutputStream out = new FileOutputStream(myImage);
@@ -227,6 +238,39 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
             out.close();
 
             Toast.makeText(getApplicationContext(), folder + filename + "에 저장되었습니다", Toast.LENGTH_SHORT).show();
+
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_VIEW);
+
+            intent.setDataAndType(Uri.parse("file://" + myImage.getAbsolutePath()), "image/*");
+            startActivity(intent);
+
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//                Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+//                Uri contentUri = Uri.fromFile(storagePath);
+//                mediaScanIntent.setData(contentUri);
+//                sendBroadcast(mediaScanIntent);
+//            } else {
+//                sendBroadcast(new Intent(
+//                        Intent.ACTION_MEDIA_MOUNTED,
+//                        Uri.parse("file://" + Environment.getExternalStorageDirectory())));
+//            }
+            mediaScannerConnection = new MediaScannerConnection(this, new MediaScannerConnection.MediaScannerConnectionClient() {
+                @Override
+                public void onMediaScannerConnected() {
+                    if (mediaScannerConnection.isConnected()) {
+                        mediaScannerConnection.scanFile(myImage.getAbsolutePath(), "image/*");
+                    }
+                }
+
+                @Override
+                public void onScanCompleted(String path, Uri uri) {
+                    mediaScannerConnection.disconnect();
+                    mSimpleProgressDialog.dismiss();
+                }
+            });
+            mediaScannerConnection.connect();
+
         } catch (FileNotFoundException e) {
             Log.d("In Saving File", e + "");
         } catch (IOException e) {
@@ -235,12 +279,6 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
 
         overlay.recycle();
         overlay = null;
-
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_VIEW);
-
-        intent.setDataAndType(Uri.parse("file://" + myImage.getAbsolutePath()), "image/*");
-        startActivity(intent);
     }
 
     public void openGallery() {
@@ -302,8 +340,6 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
 
             @Override
             public void onSuccess(JSONObject object) {
-                mProductArrayList = new ArrayList<>();
-
                 try {
 
                     JSONArray list = object.getJSONArray(APIConstants.COMMON_RESP_LIST);
@@ -334,11 +370,20 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
                     e.printStackTrace();
                 }
 
+                mSimpleProgressDialog.dismiss();
             }
 
             @Override
             public void onError(Error error) {
+                mSimpleProgressDialog.dismiss();
                 Log.i(LOG_TAG, error.toString());
+                CommonHelper.showDialog(_this, error.getMessage(), getResources().getString(R.string.retry), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mSimpleProgressDialog.show();
+                        getProductData();
+                    }
+                });
             }
         });
     }
@@ -348,6 +393,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
         apiRequester.requestGET(APIConstants.API_ETC_META, null, new APIRequester.APICallbackListener() {
             @Override
             public void onBefore() {
+                mSimpleProgressDialog.show();
             }
 
             @Override
@@ -359,7 +405,14 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
 
             @Override
             public void onError(Error error) {
+                mSimpleProgressDialog.dismiss();
                 Log.i(LOG_TAG, error.toString());
+                CommonHelper.showDialog(_this, error.getMessage(), getResources().getString(R.string.retry), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        appInit();
+                    }
+                });
             }
         });
     }
@@ -371,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
         productPriceTextView.setText(CommonHelper.moneyFormatter(mProductArrayList.get(productPosition).getPrice()));
         productDescriptionTextView.setText(mProductArrayList.get(productPosition).getDescription());
 
-        Glide.with(getApplicationContext()).load(CommonHelper.urlFormatter(mProductArrayList.get(productPosition), tempPosition)).into(mImageView);
+        Glide.with(getApplicationContext()).load(CommonHelper.urlFormatter(mProductArrayList.get(productPosition), tempPosition)).placeholder(R.mipmap.ic_launcher).into(mImageView);
         productCountTextView.setText((this.productPosition + 1) + "/" + mProductArrayList.size());
     }
 
