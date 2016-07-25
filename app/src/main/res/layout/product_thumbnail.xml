@@ -1,14 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:gravity="center"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <ImageView
+    <com.slogup.catalog.custom_widget.SquareImageView
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true" />
+        android:layout_height="match_parent"
+        android:src="@drawable/sample"
+        android:tint="@color/colorThumbnailCover"
+        android:tintMode="src_over"
+        />
 
-</LinearLayout>
+
+    <TextView
+        android:layout_marginLeft="8dp"
+        android:layout_above="@+id/productNameTextView"
+        android:id="@+id/manufacturerTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="LG전자"
+        android:textColor="@color/colorText"/>
+
+    <TextView
+        android:layout_marginLeft="8dp"
+        android:id="@+id/productNameTextView"
+        android:layout_alignParentBottom="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="디오스 R-M441GCV"
+        android:textSize="12dp"
+        android:textColor="@color/colorText"/>
+</RelativeLayout>

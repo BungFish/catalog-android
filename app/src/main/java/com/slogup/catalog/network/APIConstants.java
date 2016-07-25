@@ -6,7 +6,7 @@ package com.slogup.catalog.network;
 public class APIConstants {
 
     //Development
-    public static final String ROOT_URL_DEVELOPMENT = "http://192.168.137.111:3001/";
+    public static final String ROOT_URL_DEVELOPMENT = "http://192.168.0.125:3001/";
     //Production
     public static final String ROOT_URL_PRODUCTION = "http://192.168.0.125:3001/";
 
@@ -30,6 +30,7 @@ public class APIConstants {
 
     private static final String API_CATALOG = "api/catalog/";
     public static final String API_CATALOG_PRODUCT = API_CATALOG + "products";
+    public static final String API_CATALOG_CATEGORY = API_CATALOG + "product-categories";
 
     private static final String API_ETC = "api/etc/";
     public static final String API_ETC_META = API_ETC + "meta";

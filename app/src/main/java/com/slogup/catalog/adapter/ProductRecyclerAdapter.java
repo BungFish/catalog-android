@@ -6,11 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.slogup.catalog.CommonHelper;
 import com.slogup.catalog.R;
 import com.slogup.catalog.models.Product;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -45,7 +47,10 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter<ProductRecycler
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
 
         Product product = data.get(position);
-        Glide.with(mContext).load(CommonHelper.urlFormatter(product, 0)).into(holder.imageView);
+        Picasso.with(mContext).load(CommonHelper.urlFormatter(product, 0)).into(holder.imageView);
+
+        holder.manufacturerTextView.setText(product.getManufacturer());
+        holder.productNameTextView.setText(product.getProductName());
 
     }
 
@@ -60,11 +65,16 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter<ProductRecycler
 
     class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private ImageView imageView;
+        private final TextView manufacturerTextView;
+        private final TextView productNameTextView;
+        private final ImageView imageView;
 
         public MyViewHolder(View itemView) {
             super(itemView);
             imageView = (ImageView) itemView.findViewById(R.id.imageView);
+            manufacturerTextView = (TextView) itemView.findViewById(R.id.manufacturerTextView);
+            productNameTextView = (TextView) itemView.findViewById(R.id.productNameTextView);
+
             imageView.setOnClickListener(this);
 
         }

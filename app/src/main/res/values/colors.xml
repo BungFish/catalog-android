@@ -6,4 +6,7 @@
 
     <color name="colorText">#FFFFFF</color>
     <color name="colorBackground">#000000</color>
+    <color name="colorGradation">#1B1B1B</color>
+
+    <color name="colorThumbnailCover">#551B1B1B</color>
 </resources>

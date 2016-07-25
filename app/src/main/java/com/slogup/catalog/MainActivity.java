@@ -4,12 +4,16 @@ import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.YuvImage;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
@@ -18,21 +22,34 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.slogup.catalog.adapter.ProductRecyclerAdapter;
+import com.slogup.catalog.custom_widget.ScalableImageView;
 import com.slogup.catalog.custom_widget.SimpleProgressDialog;
 import com.slogup.catalog.custom_widget.SurfacePreview;
 import com.slogup.catalog.manager.AppManager;
@@ -41,6 +58,8 @@ import com.slogup.catalog.models.Product;
 import com.slogup.catalog.models.ProductCategory;
 import com.slogup.catalog.network.APIConstants;
 import com.slogup.catalog.network.APIRequester;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,6 +72,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements ProductRecyclerAdapter.ClickListener {
 
@@ -62,18 +83,18 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
     public static Bitmap shareBitmap;
     private FrameLayout shareLayout;
     private ImageView captureButton;
-    private ImageView mImageView;
+    private ScalableImageView mImageView;
     private Button openGalleryButton;
     private ImageView previousImageButton;
     private ImageView nextImageButton;
     private ArrayList<Drawable> drawableArray = new ArrayList<>();
-    private int category = 0;
     private int productPosition = 0;
     private int tempPosition = 0;
     private TextView productCountTextView;
     private TextView productNameTextView;
     private TextView productPriceTextView;
     private ArrayList<Product> mProductArrayList = new ArrayList<>();
+    private ArrayList<ProductCategory> mProductCategoryArrayList = new ArrayList<>();
     private TextView manufacturerTextView;
     private TextView productDescriptionTextView;
     private RecyclerView productRecyclerView;
@@ -84,11 +105,21 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
     private String filename;
     private File myImage;
     private File storagePath;
+    private Button categoryButton;
+    private AlertDialog alert;
+    private ImageView phoneButton;
+    private ImageView locationButton;
+    private Animation slideInFromBottom;
+    private boolean firstLoad = true;
+    private Animation fadeIn;
+    private Animation fadeOut;
+    private LinearLayout topLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mSimpleProgressDialog = new SimpleProgressDialog(this);
+        slideInFromBottom = AnimationUtils.loadAnimation(this, R.anim.slide_in_from_bottom);
 
         appInit();
 
@@ -101,10 +132,10 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
         setContentView(R.layout.activity_main);
 
         productRecyclerView = (RecyclerView) findViewById(R.id.product_list);
-        LinearLayoutManager mMyHamlinearLayoutManager = new LinearLayoutManager(this);
-        mMyHamlinearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-        mMyHamlinearLayoutManager.setSmoothScrollbarEnabled(true);
-        productRecyclerView.setLayoutManager(mMyHamlinearLayoutManager);
+        LinearLayoutManager mMyHamLinearLayoutManager = new LinearLayoutManager(this);
+        mMyHamLinearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        mMyHamLinearLayoutManager.setSmoothScrollbarEnabled(true);
+        productRecyclerView.setLayoutManager(mMyHamLinearLayoutManager);
 
         productRecyclerAdapter = new ProductRecyclerAdapter(this);
         productRecyclerAdapter.setClickListener(this);
@@ -119,12 +150,16 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
 
         shareLayout = (FrameLayout) findViewById(R.id.shareLayout);
         captureButton = (ImageView) findViewById(R.id.captureButton);
-//        upSizeImageButton = (Button) findViewById(R.id.upSizeImageButton);
-//        downSizeImageButton = (Button) findViewById(R.id.downSizeImageButton);
         openGalleryButton = (Button) findViewById(R.id.openGalleryButton);
-        previousImageButton = (ImageView) findViewById(R.id.previousImageButton);
-        nextImageButton = (ImageView) findViewById(R.id.nextImageButton);
-        mImageView = (ImageView) findViewById(R.id.imageView);
+        categoryButton = (Button) findViewById(R.id.categoryButton);
+//        previousImageButton = (ImageView) findViewById(R.id.previousImageButton);
+//        nextImageButton = (ImageView) findViewById(R.id.nextImageButton);
+        mImageView = (ScalableImageView) findViewById(R.id.imageView);
+
+        locationButton = (ImageView) findViewById(R.id.locationButton);
+        phoneButton = (ImageView) findViewById(R.id.phoneButton);
+
+        topLayout = (LinearLayout) findViewById(R.id.topLayout);
 
         drawableArray.add(getResources().getDrawable(R.drawable.sample));
         drawableArray.add(getResources().getDrawable(R.drawable.card_normal));
@@ -144,30 +179,78 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
             }
         });
 
-        previousImageButton.setOnClickListener(new View.OnClickListener() {
+        categoryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (productPosition > 0) {
-                    productPosition--;
-                    setMainView(productPosition, tempPosition);
-                } else {
-                    Toast.makeText(getApplicationContext(), "처음 제품 입니다", Toast.LENGTH_SHORT).show();
+
+                String categories[] = new String[mProductCategoryArrayList.size()];
+                for (int i = 0; i < mProductCategoryArrayList.size(); i++) {
+                    categories[i] = mProductCategoryArrayList.get(i).getProductCategoryName();
                 }
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(_this);
+                builder.setTitle("카테고리 선택");
+                builder.setItems(categories, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int item) {
+                        getProductData(mProductCategoryArrayList.get(item));
+                        alert.dismiss();
+                    }
+                });
+                alert = builder.create();
+                alert.show();
+            }
+        });
+        locationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CommonHelper.showDialog(_this, "브라우저가 열립니다.", "열기", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.naver.com"));
+                        startActivity(browserIntent);
+                    }
+                });
             }
         });
 
-        nextImageButton.setOnClickListener(new View.OnClickListener() {
+        phoneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (productPosition < mProductArrayList.size() - 1) {
-                    productPosition++;
-                    setMainView(productPosition, tempPosition);
-                } else {
-                    Toast.makeText(getApplicationContext(), "마지막 제품 입니다", Toast.LENGTH_SHORT).show();
-                }
-
+                CommonHelper.showDialog(_this, "상담원과 연결됩니다.", "연결", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Uri number = Uri.parse("tel:" + "010-2075-3912");
+                        Intent dial = new Intent(Intent.ACTION_DIAL, number);
+                        startActivity(dial);
+                    }
+                });
             }
         });
+
+//        previousImageButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (productPosition > 0) {
+//                    productPosition--;
+//                    setMainView(productPosition, tempPosition);
+//                } else {
+//                    Toast.makeText(getApplicationContext(), "처음 제품 입니다", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
+//
+//        nextImageButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (productPosition < mProductArrayList.size() - 1) {
+//                    productPosition++;
+//                    setMainView(productPosition, tempPosition);
+//                } else {
+//                    Toast.makeText(getApplicationContext(), "마지막 제품 입니다", Toast.LENGTH_SHORT).show();
+//                }
+//
+//            }
+//        });
     }
 
     public void capture() {
@@ -203,6 +286,15 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
         canvas.drawBitmap(temp, 0, 0, null);
 
         Log.i("shareLayout size", temp.getWidth() + " x " + temp.getHeight());
+
+
+        temp = createWaterMarkBitmap();
+
+        int cx = (canvas.getWidth() - temp.getWidth()) / 2;
+        int cy = (canvas.getHeight() - temp.getHeight()) / 2;
+
+        canvas.drawBitmap(temp, cx, cy, null);
+
 
 //        FileOutputStream out;
 //
@@ -330,12 +422,15 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
         return url;
     }
 
-    public void getProductData() {
+    public void getProductData(final ProductCategory productCategory) {
+
+        String uri = String.format("?productCategoryId=%1$s", productCategory.getProductCategoryId());
+
         APIRequester apiRequester = new APIRequester(this);
-        apiRequester.requestGET(APIConstants.API_CATALOG_PRODUCT, null, new APIRequester.APICallbackListener() {
+        apiRequester.requestGET(APIConstants.API_CATALOG_PRODUCT + uri, null, new APIRequester.APICallbackListener() {
             @Override
             public void onBefore() {
-
+                mSimpleProgressDialog.show();
             }
 
             @Override
@@ -343,6 +438,8 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
                 try {
 
                     JSONArray list = object.getJSONArray(APIConstants.COMMON_RESP_LIST);
+
+                    mProductArrayList.clear();
 
                     for (int i = 0; i < list.length(); i++) {
 
@@ -363,8 +460,17 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
                         mProductArrayList.add(product);
                     }
 
+                    productPosition = 0;
                     setMainView(productPosition, tempPosition);
                     productRecyclerAdapter.setData(mProductArrayList);
+
+                    if (firstLoad) {
+                        productRecyclerView.startAnimation(slideInFromBottom);
+                        productRecyclerView.setVisibility(View.VISIBLE);
+                        firstLoad = false;
+                    }
+
+                    categoryButton.setText(productCategory.getProductCategoryName());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -381,7 +487,50 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
                     @Override
                     public void onClick(View v) {
                         mSimpleProgressDialog.show();
-                        getProductData();
+                        getProductData(productCategory);
+                    }
+                });
+            }
+        });
+    }
+
+    public void getCategory() {
+        APIRequester apiRequester = new APIRequester(this);
+        apiRequester.requestGET(APIConstants.API_CATALOG_CATEGORY, null, new APIRequester.APICallbackListener() {
+            @Override
+            public void onBefore() {
+
+            }
+
+            @Override
+            public void onSuccess(JSONObject object) {
+                try {
+
+                    JSONArray list = object.getJSONArray(APIConstants.COMMON_RESP_LIST);
+
+                    for (int i = 0; i < list.length(); i++) {
+
+                        JSONObject productCategoryObject = list.getJSONObject(i);
+                        ProductCategory productCategory = new ProductCategory(productCategoryObject.getInt("id"), productCategoryObject.getString("categoryName"));
+                        mProductCategoryArrayList.add(productCategory);
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                mSimpleProgressDialog.dismiss();
+            }
+
+            @Override
+            public void onError(Error error) {
+                mSimpleProgressDialog.dismiss();
+                Log.i(LOG_TAG, error.toString());
+                CommonHelper.showDialog(_this, error.getMessage(), getResources().getString(R.string.retry), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mSimpleProgressDialog.show();
+                        getCategory();
                     }
                 });
             }
@@ -400,7 +549,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
             public void onSuccess(JSONObject object) {
                 AppManager.meta = new Metadata(object);
                 Log.i(LOG_TAG, AppManager.meta.getRootUrl());
-                getProductData();
+                getCategory();
             }
 
             @Override
@@ -424,8 +573,45 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
         productPriceTextView.setText(CommonHelper.moneyFormatter(mProductArrayList.get(productPosition).getPrice()));
         productDescriptionTextView.setText(mProductArrayList.get(productPosition).getDescription());
 
-        Glide.with(getApplicationContext()).load(CommonHelper.urlFormatter(mProductArrayList.get(productPosition), tempPosition)).placeholder(R.mipmap.ic_launcher).into(mImageView);
+        Picasso.with(_this).load(CommonHelper.urlFormatter(mProductArrayList.get(productPosition), tempPosition)).into(mImageView, new Callback() {
+            @Override
+            public void onSuccess() {
+                if (mImageView.getDrawable() != null) {
+                    Display display = getWindowManager().getDefaultDisplay();
+                    Point size = new Point();
+                    display.getSize(size);
+                    int screenWidth = size.x;
+                    int screenHeight = size.y;
+
+                    Matrix matrix = new Matrix();
+
+                    Drawable drawable = mImageView.getDrawable();
+                    //you should call after the bitmap drawn
+                    Rect bounds = drawable.getBounds();
+                    int width = bounds.width();
+                    int height = bounds.height();
+
+//        Matrix m = new Matrix();
+//        m.set(mImageView.getImageMatrix());
+//        float[] values = new float[9];
+//        m.getValues(values);
+//        float bitmapWidth = values[Matrix.MSCALE_X] * drawable.getIntrinsicWidth(); //your bitmap's width
+//        float bitmapHeight = values[Matrix.MSCALE_Y] * drawable.getIntrinsicHeight(); //your the bitmap's height
+
+                    matrix.postTranslate((screenWidth / 2) - (width / 2), (screenHeight / 2) - (height / 2));
+                    mImageView.setImageMatrix(matrix);
+                }
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
+
         productCountTextView.setText((this.productPosition + 1) + "/" + mProductArrayList.size());
+
+
     }
 
     @Override
@@ -433,5 +619,24 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
 
         productPosition = position;
         setMainView(productPosition, tempPosition);
+    }
+
+    private Bitmap createWaterMarkBitmap() {
+        RelativeLayout watermark = (RelativeLayout) LayoutInflater.from(this).inflate(R.layout.watermark, null);
+        watermark.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
+//        TextView phoneTextView = (TextView) watermark.findViewById(R.id.phoneTextView);
+//        phoneTextView.setText(String.valueOf(clusterSize));
+
+        watermark.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+
+        watermark.layout(0, 0, watermark.getMeasuredWidth(), watermark.getMeasuredHeight());
+
+        final Bitmap clusterBitmap = Bitmap.createBitmap(watermark.getMeasuredWidth(), watermark.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(clusterBitmap);
+        watermark.draw(canvas);
+
+        return clusterBitmap;
     }
 }

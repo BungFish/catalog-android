@@ -1,10 +1,13 @@
 package com.slogup.catalog.custom_widget;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -34,6 +37,16 @@ public class ScalableImageView extends ImageView implements View.OnTouchListener
     public ScalableImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.setOnTouchListener(this);
+
+//        Display display = ((Activity) context).getWindowManager().getDefaultDisplay();
+//        Point size = new Point();
+//        display.getSize(size);
+//        int width = size.x;
+//        int height = size.y;
+//
+//        matrix.postTranslate(width/2, height/2);
+//        fixing();
+//        this.setImageMatrix(matrix);
     }
 
     public ScalableImageView(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -157,5 +170,11 @@ public class ScalableImageView extends ImageView implements View.OnTouchListener
         float y = event.getY(0) + event.getY(1);
         point.set(x / 2, y / 2);
 
+    }
+
+    @Override
+    public void setImageMatrix(Matrix matrix) {
+        super.setImageMatrix(matrix);
+        this.matrix = matrix;
     }
 }
