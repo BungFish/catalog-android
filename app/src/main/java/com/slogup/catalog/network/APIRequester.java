@@ -15,7 +15,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.slogup.catalog.R;
 import com.slogup.catalog.manager.AppManager;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class APIRequester {
@@ -83,29 +82,6 @@ public class APIRequester {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         RequestQueueManager.getInstance(mContext).getRequestQueue().add(jsonObjectRequest);
-    }
-
-    public JSONObject makeRequestParams(String fid, String id, JSONObject fields, JSONObject recordsSet) {
-
-        JSONObject params = new JSONObject();
-        JSONObject transactions = new JSONObject();
-        JSONObject attributes = new JSONObject();
-        JSONObject dataSet = new JSONObject();
-
-
-        try {
-            params.put(APIConstants.COMMON_PARAM_ROOT_KEY_DATASETS, dataSet);
-            params.put(APIConstants.COMMON_PARAM_ROOT_KEY_TRASACTION, transactions);
-            params.put(APIConstants.COMMON_PARAM_ROOT_KEY_ATTRIBUTES, attributes);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.d(LOG_TAG, "makeRequestParams: Error making root objects");
-        }
-
-        Log.i(LOG_TAG, params.toString());
-
-        return params;
     }
 
     public interface APICallbackListener {

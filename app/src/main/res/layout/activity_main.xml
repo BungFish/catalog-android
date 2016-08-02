@@ -12,9 +12,9 @@
         android:layout_height="match_parent">
 
         <com.slogup.catalog.custom_widget.SurfacePreview
-        android:id="@+id/surfaceView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+            android:id="@+id/surfaceView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
         <com.slogup.catalog.custom_widget.ScalableImageView
             android:id="@+id/imageView"
@@ -90,7 +90,7 @@
             android:layout_height="wrap_content"
             android:drawableRight="@drawable/down_triangle"
             android:text="카테고리"
-            android:visibility="gone"/>
+            android:visibility="gone" />
     </LinearLayout>
 
     <!--<ImageView-->
@@ -193,11 +193,11 @@
 
         <RelativeLayout
             android:id="@+id/countLayout"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="4dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center">
+            android:layout_gravity="center"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="8dp">
 
             <ImageView
                 android:layout_width="40dp"

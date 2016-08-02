@@ -17,11 +17,11 @@ import android.hardware.Camera;
 import android.media.MediaActionSound;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
         locationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CommonHelper.showDialog(_this, "브라우저가 열립니다.", "열기", new View.OnClickListener() {
+                CommonHelper.showDialog(_this, getResources().getString(R.string.himart_mobile), "열기", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://m.e-himart.co.kr/app/common/offLineShopSearchTab1"));
@@ -199,10 +199,10 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
         phoneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CommonHelper.showDialog(_this, "상담원과 연결됩니다.", "연결", new View.OnClickListener() {
+                CommonHelper.showDialog(_this, getResources().getString(R.string.customer_center), "연결", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Uri number = Uri.parse("tel:" + "1588-0070");
+                        Uri number = Uri.parse("tel:" + String.valueOf(R.string.customer_center_num));
                         Intent dial = new Intent(Intent.ACTION_DIAL, number);
                         startActivity(dial);
                     }
@@ -242,10 +242,38 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
     }
 
     public void capture() {
-        captureButton.setClickable(false);
-        shootSound();
 
-        mSimpleProgressDialog.show();
+        Boolean isSDPresent = android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
+
+        if (isSDPresent) {
+            captureButton.setClickable(false);
+            shootSound();
+            mSimpleProgressDialog.show();
+            saveCapturedImage();
+        } else {
+            Toast.makeText(getApplicationContext(), "SD 카드를 삽입 하세요.", Toast.LENGTH_SHORT).show();
+        }
+
+//        FileOutputStream out;
+//
+//        String filename = System.currentTimeMillis() + ".jpg";
+//        String temp = "/catalog/" + filename;
+//
+//        final File dir = new File(Environment.getExternalStorageDirectory().toString() + "/catalog");
+//        Log.i("===", dir.mkdirs() + "");
+//
+//        try {
+//            out = new FileOutputStream(Environment.getExternalStorageDirectory().toString() + temp);
+//            Log.i("===", overlay.compress(Bitmap.CompressFormat.JPEG, 100, out) + "");
+//            Toast.makeText(getApplicationContext(), temp + "에 저장되었습니다", Toast.LENGTH_SHORT).show();
+//        } catch (Exception e) {
+//            Log.d("screenshot", String.valueOf(e));
+//            e.printStackTrace();
+//        }
+
+    }
+
+    public void saveCapturedImage() {
         Camera.Parameters params = SurfacePreview.mCamera.getParameters();
 
 
@@ -287,23 +315,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
 
         canvas.drawBitmap(temp, cx, cy, null);
 
-
-//        FileOutputStream out;
-//
-//        String filename = System.currentTimeMillis() + ".jpg";
-//        String temp = "/catalog/" + filename;
-//
-//        final File dir = new File(Environment.getExternalStorageDirectory().toString() + "/catalog");
-//        Log.i("===", dir.mkdirs() + "");
-//
-//        try {
-//            out = new FileOutputStream(Environment.getExternalStorageDirectory().toString() + temp);
-//            Log.i("===", overlay.compress(Bitmap.CompressFormat.JPEG, 100, out) + "");
-//            Toast.makeText(getApplicationContext(), temp + "에 저장되었습니다", Toast.LENGTH_SHORT).show();
-//        } catch (Exception e) {
-//            Log.d("screenshot", String.valueOf(e));
-//            e.printStackTrace();
-//        }
+        //=================
 
         folder = "/catalog/";
         filename = System.currentTimeMillis() + ".jpg";
@@ -367,8 +379,12 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
     }
 
     public void shootSound() {
-        MediaActionSound sound = new MediaActionSound();
-        sound.play(MediaActionSound.SHUTTER_CLICK);
+        MediaActionSound sound = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            sound = new MediaActionSound();
+            sound.play(MediaActionSound.SHUTTER_CLICK);
+        }
+
     }
 
     public void openGallery() {
@@ -535,6 +551,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
     }
 
     public void setMainView() {
+        mSimpleProgressDialog.show();
 
         int currentPosition = productRecyclerAdapter.getSelectedPosition();
         Product product = productRecyclerAdapter.getItem(currentPosition);
@@ -543,7 +560,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
         productNameTextView.setText(product.getProductName());
         productDescriptionTextView.setText(product.getDescription());
 
-        Picasso.with(_this).load(CommonHelper.urlFormatter(product, 0)).into(mImageView, new Callback() {
+        Picasso.with(_this).load(CommonHelper.imageUrlFormatter(product, 0)).into(mImageView, new Callback() {
             @Override
             public void onSuccess() {
                 if (mImageView.getDrawable() != null) {
@@ -551,7 +568,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
                     Point size = new Point();
                     display.getSize(size);
                     int screenWidth = size.x;
-                    int screenHeight = size.y;
+                    int screenHeight = size.y - 100;
 
                     Matrix matrix = new Matrix();
 
@@ -572,12 +589,14 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
                     mImageView.setImageMatrix(matrix);
 
                     isViewInit = true;
+                    mSimpleProgressDialog.dismiss();
                 }
             }
 
             @Override
             public void onError() {
-
+                mSimpleProgressDialog.dismiss();
+                Toast.makeText(_this, "이미지 로드에 실패하였습니다.", Toast.LENGTH_SHORT).show();
             }
         });
 

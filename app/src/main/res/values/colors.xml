@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimary">#FF0000</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
@@ -11,5 +11,5 @@
     <color name="colorTextDark">#010101</color>
 
     <color name="colorThumbnailCover">#551B1B1B</color>
-    <color name="colorCapturing">#FF0000</color>
+    <color name="colorProgressBar">#D32F2F</color>
 </resources>

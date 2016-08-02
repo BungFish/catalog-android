@@ -6,11 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.slogup.catalog.CommonHelper;
 import com.slogup.catalog.R;
 import com.slogup.catalog.models.Product;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -47,7 +49,17 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter<ProductRecycler
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
 
         Product product = data.get(position);
-        Picasso.with(mContext).load(CommonHelper.urlFormatter(product, 0)).into(holder.imageView);
+        Picasso.with(mContext).load(CommonHelper.thumbnailUrlFormatter(product, 0)).into(holder.imageView, new Callback() {
+            @Override
+            public void onSuccess() {
+                holder.progressBarProgressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
 
         holder.manufacturerTextView.setText(product.getManufacturer());
         holder.productNameTextView.setText(product.getProductName());
@@ -68,12 +80,15 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter<ProductRecycler
         private final TextView manufacturerTextView;
         private final TextView productNameTextView;
         private final ImageView imageView;
+        private final ProgressBar progressBarProgressBar;
 
         public MyViewHolder(View itemView) {
             super(itemView);
             imageView = (ImageView) itemView.findViewById(R.id.imageView);
             manufacturerTextView = (TextView) itemView.findViewById(R.id.manufacturerTextView);
             productNameTextView = (TextView) itemView.findViewById(R.id.productNameTextView);
+
+            progressBarProgressBar = (ProgressBar) itemView.findViewById(R.id.progressBar);
 
             imageView.setOnClickListener(this);
 

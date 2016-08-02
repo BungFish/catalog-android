@@ -41,4 +41,8 @@ public class ProductImage {
     public String getImageUrl() {
         return folder + "/" + name;
     }
+
+    public String getSmallImageUrlName() {
+        return folder + "/s_" + name;
+    }
 }

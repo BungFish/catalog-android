@@ -4,16 +4,15 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.slogup.catalog.manager.AppManager;
-import com.slogup.catalog.models.Metadata;
 import com.slogup.catalog.models.Product;
 import com.slogup.catalog.models.ProductCategory;
 import com.slogup.catalog.network.APIConstants;
@@ -120,10 +119,15 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void onError(Error error) {
                 Log.i(LOG_TAG, error.toString());
-                CommonHelper.showDialog(_this, error.getMessage(), getResources().getString(R.string.retry), new View.OnClickListener() {
+                CommonHelper.showDialogWithNegative(_this, error.getMessage(), getResources().getString(R.string.retry), new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         getProductData();
+                    }
+                }, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        finish();
                     }
                 });
             }
@@ -141,7 +145,7 @@ public class SplashActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case 1: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
 
                     getProductData();
 
@@ -150,7 +154,6 @@ public class SplashActivity extends AppCompatActivity {
                     finish();
                 }
 
-                return;
             }
         }
     }

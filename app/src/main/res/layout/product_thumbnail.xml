@@ -3,32 +3,42 @@
     android:layout_width="wrap_content"
     android:layout_height="match_parent">
 
-    <com.slogup.catalog.custom_widget.SquareImageView
+    <ImageView
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:src="@drawable/sample"
         android:tint="@color/colorThumbnailCover"
         android:tintMode="src_over"
-        />
-
+        android:adjustViewBounds="true"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"/>
 
     <TextView
-        android:layout_marginLeft="8dp"
-        android:layout_above="@+id/productNameTextView"
         android:id="@+id/manufacturerTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/productNameTextView"
+        android:layout_marginLeft="8dp"
         android:text="LG전자"
-        android:textColor="@color/colorText"/>
+        android:textColor="@color/colorText" />
 
     <TextView
-        android:layout_marginLeft="8dp"
         android:id="@+id/productNameTextView"
-        android:layout_alignParentBottom="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="8dp"
         android:text="디오스 R-M441GCV"
-        android:textSize="12dp"
-        android:textColor="@color/colorText"/>
+        android:textColor="@color/colorText"
+        android:textSize="12dp" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:progressDrawable="@color/colorProgressBar"
+        android:layout_centerInParent="true" />
+
 </RelativeLayout>
