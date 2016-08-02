@@ -1,14 +1,17 @@
 package com.slogup.catalog.network;
 
-/**
- * Created by sngjoong on 16. 1. 23..
- */
+import android.net.Uri;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 public class APIConstants {
 
     //Development
-    public static final String ROOT_URL_DEVELOPMENT = "http://192.168.0.125:3001/";
+    public static final String ROOT_URL_DEVELOPMENT = "http://himart_go.team-slogup.net/";
+
     //Production
-    public static final String ROOT_URL_PRODUCTION = "http://192.168.0.125:3001/";
+    public static final String ROOT_URL_PRODUCTION = "http://himart_go.team-slogup.net/";
 
     //공통 요청 객체 Keys
     public static final String COMMON_PARAM_ROOT_KEY_TRASACTION = "transaction";

@@ -1,27 +1,24 @@
 package com.slogup.catalog;
 
-import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.YuvImage;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
+import android.media.MediaActionSound;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -31,29 +28,22 @@ import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.slogup.catalog.adapter.ProductRecyclerAdapter;
 import com.slogup.catalog.custom_widget.ScalableImageView;
 import com.slogup.catalog.custom_widget.SimpleProgressDialog;
 import com.slogup.catalog.custom_widget.SurfacePreview;
 import com.slogup.catalog.manager.AppManager;
-import com.slogup.catalog.models.Metadata;
 import com.slogup.catalog.models.Product;
 import com.slogup.catalog.models.ProductCategory;
 import com.slogup.catalog.network.APIConstants;
@@ -72,12 +62,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements ProductRecyclerAdapter.ClickListener {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
+
+    private static final int BACK_PRESS_TIME_DELAY = 2000;
+    private static long sBackPressedTime;
 
     private Context _this = this;
     public static Bitmap shareBitmap;
@@ -88,8 +79,6 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
     private ImageView previousImageButton;
     private ImageView nextImageButton;
     private ArrayList<Drawable> drawableArray = new ArrayList<>();
-    private int productPosition = 0;
-    private int tempPosition = 0;
     private TextView productCountTextView;
     private TextView productNameTextView;
     private TextView productPriceTextView;
@@ -111,9 +100,9 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
     private ImageView locationButton;
     private Animation slideInFromBottom;
     private boolean firstLoad = true;
-    private Animation fadeIn;
-    private Animation fadeOut;
+    private boolean isViewInit = false;
     private LinearLayout topLayout;
+    private RelativeLayout countLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,13 +110,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
         mSimpleProgressDialog = new SimpleProgressDialog(this);
         slideInFromBottom = AnimationUtils.loadAnimation(this, R.anim.slide_in_from_bottom);
 
-        appInit();
-
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                0);
 
         setContentView(R.layout.activity_main);
 
@@ -143,7 +126,6 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
 
         manufacturerTextView = (TextView) findViewById(R.id.manufacturer);
         productNameTextView = (TextView) findViewById(R.id.productName);
-        productPriceTextView = (TextView) findViewById(R.id.productPrice);
         productDescriptionTextView = (TextView) findViewById(R.id.productDescription);
 
         productCountTextView = (TextView) findViewById(R.id.productCount);
@@ -160,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
         phoneButton = (ImageView) findViewById(R.id.phoneButton);
 
         topLayout = (LinearLayout) findViewById(R.id.topLayout);
+        countLayout = (RelativeLayout) findViewById(R.id.countLayout);
 
         drawableArray.add(getResources().getDrawable(R.drawable.sample));
         drawableArray.add(getResources().getDrawable(R.drawable.card_normal));
@@ -206,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
                 CommonHelper.showDialog(_this, "브라우저가 열립니다.", "열기", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.naver.com"));
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://m.e-himart.co.kr/app/common/offLineShopSearchTab1"));
                         startActivity(browserIntent);
                     }
                 });
@@ -219,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
                 CommonHelper.showDialog(_this, "상담원과 연결됩니다.", "연결", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Uri number = Uri.parse("tel:" + "010-2075-3912");
+                        Uri number = Uri.parse("tel:" + "1588-0070");
                         Intent dial = new Intent(Intent.ACTION_DIAL, number);
                         startActivity(dial);
                     }
@@ -253,9 +236,18 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
 //        });
     }
 
+    public void initView() {
+        productRecyclerAdapter.setData(AppManager.productArrayList);
+        setMainView();
+    }
+
     public void capture() {
+        captureButton.setClickable(false);
+        shootSound();
+
         mSimpleProgressDialog.show();
         Camera.Parameters params = SurfacePreview.mCamera.getParameters();
+
 
         int w = params.getPreviewSize().width;
         int h = params.getPreviewSize().height;
@@ -288,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
         Log.i("shareLayout size", temp.getWidth() + " x " + temp.getHeight());
 
 
-        temp = createWaterMarkBitmap();
+        temp = createWaterMarkBitmap(h, w);
 
         int cx = (canvas.getWidth() - temp.getWidth()) / 2;
         int cy = (canvas.getHeight() - temp.getHeight()) / 2;
@@ -324,18 +316,19 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
 
         try {
             FileOutputStream out = new FileOutputStream(myImage);
-            overlay.compress(Bitmap.CompressFormat.JPEG, 80, out);
+            overlay.compress(Bitmap.CompressFormat.JPEG, 100, out);
 
             out.flush();
             out.close();
 
             Toast.makeText(getApplicationContext(), folder + filename + "에 저장되었습니다", Toast.LENGTH_SHORT).show();
 
-            Intent intent = new Intent();
-            intent.setAction(Intent.ACTION_VIEW);
+            Intent intent = new Intent(MainActivity.this, CapturedImageActivity.class);
 
-            intent.setDataAndType(Uri.parse("file://" + myImage.getAbsolutePath()), "image/*");
-            startActivity(intent);
+//            intent.setDataAndType(Uri.parse("file://" + myImage.getAbsolutePath()), "image/*");
+
+            intent.putExtra("path", myImage.getAbsolutePath());
+            startActivityForResult(intent, CapturedImageActivity.REQUEST_CODE);
 
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 //                Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
@@ -371,6 +364,11 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
 
         overlay.recycle();
         overlay = null;
+    }
+
+    public void shootSound() {
+        MediaActionSound sound = new MediaActionSound();
+        sound.play(MediaActionSound.SHUTTER_CLICK);
     }
 
     public void openGallery() {
@@ -460,13 +458,12 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
                         mProductArrayList.add(product);
                     }
 
-                    productPosition = 0;
-                    setMainView(productPosition, tempPosition);
                     productRecyclerAdapter.setData(mProductArrayList);
 
                     if (firstLoad) {
                         productRecyclerView.startAnimation(slideInFromBottom);
                         productRecyclerView.setVisibility(View.VISIBLE);
+                        countLayout.setVisibility(View.VISIBLE);
                         firstLoad = false;
                     }
 
@@ -537,43 +534,16 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
         });
     }
 
-    public void appInit() {
-        APIRequester apiRequester = new APIRequester(this);
-        apiRequester.requestGET(APIConstants.API_ETC_META, null, new APIRequester.APICallbackListener() {
-            @Override
-            public void onBefore() {
-                mSimpleProgressDialog.show();
-            }
+    public void setMainView() {
 
-            @Override
-            public void onSuccess(JSONObject object) {
-                AppManager.meta = new Metadata(object);
-                Log.i(LOG_TAG, AppManager.meta.getRootUrl());
-                getCategory();
-            }
+        int currentPosition = productRecyclerAdapter.getSelectedPosition();
+        Product product = productRecyclerAdapter.getItem(currentPosition);
 
-            @Override
-            public void onError(Error error) {
-                mSimpleProgressDialog.dismiss();
-                Log.i(LOG_TAG, error.toString());
-                CommonHelper.showDialog(_this, error.getMessage(), getResources().getString(R.string.retry), new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        appInit();
-                    }
-                });
-            }
-        });
-    }
+        manufacturerTextView.setText(product.getManufacturer());
+        productNameTextView.setText(product.getProductName());
+        productDescriptionTextView.setText(product.getDescription());
 
-    public void setMainView(int productPosition, int tempPosition) {
-
-        manufacturerTextView.setText(mProductArrayList.get(productPosition).getManufacturer());
-        productNameTextView.setText(mProductArrayList.get(productPosition).getProductName());
-        productPriceTextView.setText(CommonHelper.moneyFormatter(mProductArrayList.get(productPosition).getPrice()));
-        productDescriptionTextView.setText(mProductArrayList.get(productPosition).getDescription());
-
-        Picasso.with(_this).load(CommonHelper.urlFormatter(mProductArrayList.get(productPosition), tempPosition)).into(mImageView, new Callback() {
+        Picasso.with(_this).load(CommonHelper.urlFormatter(product, 0)).into(mImageView, new Callback() {
             @Override
             public void onSuccess() {
                 if (mImageView.getDrawable() != null) {
@@ -600,6 +570,8 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
 
                     matrix.postTranslate((screenWidth / 2) - (width / 2), (screenHeight / 2) - (height / 2));
                     mImageView.setImageMatrix(matrix);
+
+                    isViewInit = true;
                 }
             }
 
@@ -609,23 +581,19 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
             }
         });
 
-        productCountTextView.setText((this.productPosition + 1) + "/" + mProductArrayList.size());
-
+        productCountTextView.setText((currentPosition + 1) + " / " + AppManager.productArrayList.size());
 
     }
 
     @Override
     public void itemClick(View view, int position) {
-
-        productPosition = position;
-        setMainView(productPosition, tempPosition);
+        productRecyclerAdapter.setSelectedPosition(position);
+        setMainView();
     }
 
-    private Bitmap createWaterMarkBitmap() {
+    private Bitmap createWaterMarkBitmap(int width, int height) {
         RelativeLayout watermark = (RelativeLayout) LayoutInflater.from(this).inflate(R.layout.watermark, null);
-        watermark.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
-//        TextView phoneTextView = (TextView) watermark.findViewById(R.id.phoneTextView);
-//        phoneTextView.setText(String.valueOf(clusterSize));
+        watermark.setLayoutParams(new RelativeLayout.LayoutParams(width, height));
 
         watermark.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
@@ -638,5 +606,39 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
         watermark.draw(canvas);
 
         return clusterBitmap;
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        if (sBackPressedTime + BACK_PRESS_TIME_DELAY > System.currentTimeMillis()) {
+
+            super.onBackPressed();
+
+        } else {
+            Toast.makeText(getApplicationContext(), getString(R.string.one_more_click_findish_app),
+                    Toast.LENGTH_SHORT).show();
+        }
+
+        sBackPressedTime = System.currentTimeMillis();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+
+        if (hasFocus && !isViewInit) {
+            initView();
+        }
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == CapturedImageActivity.REQUEST_CODE) {
+            captureButton.setClickable(true);
+        }
     }
 }

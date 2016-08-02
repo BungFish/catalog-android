@@ -12,9 +12,9 @@
         android:layout_height="match_parent">
 
         <com.slogup.catalog.custom_widget.SurfacePreview
-            android:id="@+id/surfaceView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+        android:id="@+id/surfaceView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
         <com.slogup.catalog.custom_widget.ScalableImageView
             android:id="@+id/imageView"
@@ -63,16 +63,6 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/productPrice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text=""
-                android:textColor="@color/colorText"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <TextView
                 android:id="@+id/productDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -88,39 +78,20 @@
             android:layout_weight="1" />
 
         <!--<ImageView-->
-            <!--android:id="@+id/categoryButton"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:padding="8dp"-->
-            <!--android:src="@drawable/list_xxhdpi" />-->
+        <!--android:id="@+id/categoryButton"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:padding="8dp"-->
+        <!--android:src="@drawable/list_xxhdpi" />-->
 
         <Button
             android:id="@+id/categoryButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawableRight="@drawable/down_triangle"
-            android:text="카테고리" />
+            android:text="카테고리"
+            android:visibility="gone"/>
     </LinearLayout>
-
-    <ImageView
-        android:id="@+id/locationButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/topLayout"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="16dp"
-        android:src="@drawable/location_xxhdpi" />
-
-    <ImageView
-        android:id="@+id/phoneButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/locationButton"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="32dp"
-        android:src="@drawable/phone_xxxhdpi" />
 
     <!--<ImageView-->
     <!--android:id="@+id/previousImageButton"-->
@@ -152,39 +123,105 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/captureButton"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:layout_marginTop="16dp"
-                android:gravity="center"
-                android:src="@drawable/camera_xxhdpi" />
+                android:gravity="bottom"
+                android:orientation="horizontal">
 
+                <ImageView
+                    android:id="@+id/locationButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/location_xxhdpi" />
+
+                <ImageView
+                    android:id="@+id/captureButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/capture_button" />
+
+                <ImageView
+                    android:id="@+id/phoneButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/phone_xxxhdpi" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="가까운매장찾기"
+                    android:textColor="@color/colorText" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="캡쳐하기"
+                    android:textColor="@color/colorText"
+                    android:textSize="14dp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="고객센터연결"
+                    android:textColor="@color/colorText" />
+            </LinearLayout>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/productCount"
+        <RelativeLayout
+            android:id="@+id/countLayout"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
-            android:layout_marginLeft="16dp"
-            android:text=""
-            android:textColor="@color/colorText"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:layout_gravity="center">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="16dp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/blackbox" />
+
+            <TextView
+                android:id="@+id/productCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_centerVertical="true"
+                android:text="0 / 0"
+                android:textColor="@color/colorText"
+                android:textSize="10sp" />
+        </RelativeLayout>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/product_list"
             android:layout_width="match_parent"
             android:layout_height="120dp"
             android:background="@color/colorBackground"
-            android:clipToPadding="false"
-            android:visibility="gone" />
+            android:clipToPadding="false" />
     </LinearLayout>
 
     <Button

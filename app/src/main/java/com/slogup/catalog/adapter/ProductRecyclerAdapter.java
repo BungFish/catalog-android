@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.slogup.catalog.CommonHelper;
 import com.slogup.catalog.R;
 import com.slogup.catalog.models.Product;
@@ -22,7 +21,8 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter<ProductRecycler
     private ArrayList<Product> data;
     private Context mContext;
     private ClickListener clickListener;
-    private int mSelectedCard;
+    private int selectedPosition = 0;
+    private int direction = 0;
 
     public ProductRecyclerAdapter(Context context) {
         inflater = LayoutInflater.from(context);
@@ -97,11 +97,19 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter<ProductRecycler
         return data.get(position);
     }
 
-    public int getmSelectedCard() {
-        return mSelectedCard;
+    public int getSelectedPosition() {
+        return selectedPosition;
     }
 
-    public void setmSelectedCard(int mSelectedCard) {
-        this.mSelectedCard = mSelectedCard;
+    public void setSelectedPosition(int position) {
+        this.selectedPosition = position;
+    }
+
+    public int getDirection() {
+        return direction;
+    }
+
+    public void setDirection(int direction) {
+        this.direction = direction;
     }
 }

@@ -7,12 +7,14 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
 public class ScalableImageView extends ImageView implements View.OnTouchListener {
+
     Matrix matrix = new Matrix();
     Matrix savedMatrix = new Matrix();
     Matrix savedMatrix2 = new Matrix();

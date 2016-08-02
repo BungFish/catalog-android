@@ -28,12 +28,12 @@ import java.util.List;
  */
 public class SurfacePreview extends SurfaceView implements SurfaceHolder.Callback, Camera.PreviewCallback {
 
-    private static final int IMAGE_WIDTH = 1080; // 찍을 높이
-    private static final int IMAGE_HEIGHT = 1920; // 찍을 넓이
     SurfaceHolder holder;
     public static Camera mCamera = null;
     public static byte[] surfaceData;
     Activity activity;
+    private Camera.Size mPreviewSize;
+    private List<Camera.Size> mSupportedPreviewSizes;
 
     public SurfacePreview(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -44,6 +44,17 @@ public class SurfacePreview extends SurfaceView implements SurfaceHolder.Callbac
         super(context);
         init(context);
     }
+
+//    @Override
+//    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+//        final int width = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
+//        final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
+//        setMeasuredDimension(width, height);
+//
+//        if (mSupportedPreviewSizes != null) {
+//            mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
+//        }
+//    }
 
     public void init(Context context) {
         holder = getHolder();
@@ -58,6 +69,29 @@ public class SurfacePreview extends SurfaceView implements SurfaceHolder.Callbac
     public void surfaceChanged(SurfaceHolder holder, int format, int width,
                                int height) {
         try {
+
+//            Camera.Parameters parameters = mCamera.getParameters();
+//            parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+//            mCamera.setParameters(parameters);
+
+            Display display = activity.getWindowManager().getDefaultDisplay();
+            Point sizepoint = new Point();
+            display.getSize(sizepoint);
+            int w = sizepoint.x;
+            int h = sizepoint.y;
+            Log.i("=====", w + " x " + h);
+            Camera.Parameters parameters = mCamera.getParameters();
+
+            List<Camera.Size> sizes = parameters.getSupportedPreviewSizes();
+
+            Camera.Size optimalSize;
+
+            optimalSize = getOptimalPreviewSize(sizes, h, w);
+            parameters.setPreviewSize(optimalSize.width, optimalSize.height);
+//            parameters.setPreviewSize(1920, 1080);
+            Log.i("=====", optimalSize.width + " x " + optimalSize.height);
+            mCamera.setParameters(parameters);
+
             mCamera.setDisplayOrientation(90);
             mCamera.setPreviewCallback(this);
             mCamera.setPreviewDisplay(holder);
@@ -72,22 +106,8 @@ public class SurfacePreview extends SurfaceView implements SurfaceHolder.Callbac
     public void surfaceCreated(SurfaceHolder holder) {
         try {
             mCamera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
+//            mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
 
-//            Display display = activity.getWindowManager().getDefaultDisplay();
-//            Point sizepoint = new Point();
-//            display.getSize(sizepoint);
-//            int width = sizepoint.x;
-//            int height = sizepoint.y;
-//
-//            Camera.Parameters parameters = mCamera.getParameters();
-//
-//            List<Camera.Size> sizes = parameters.getSupportedPictureSizes();
-//
-//            Camera.Size optimalSize;
-//
-//            optimalSize = getOptimalPreviewSize(sizes, width, height);
-//            parameters.setPreviewSize(optimalSize.width, optimalSize.height);
-//            mCamera.setParameters(parameters);
 
         } catch (Exception e) {
             Log.e(getContext().getString(R.string.app_name), "failed to open Camera");
@@ -108,15 +128,18 @@ public class SurfacePreview extends SurfaceView implements SurfaceHolder.Callbac
 
         int targetHeight = height;
 
+        int i = 0;
+
         // Try to find an size match aspect ratio and size
         for (Camera.Size size : sizes) {
+            Log.i("camera size " + i++, "" + size.width + " x " + size.height);
             double ratio = (double) size.width / size.height;
             if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) {
                 continue;
             }
             if (Math.abs(size.height - targetHeight) < minDiff) {
-                optimalSize = size;
-                minDiff = Math.abs(size.height - targetHeight);
+                    optimalSize = size;
+                    minDiff = Math.abs(size.height - targetHeight);
             }
         }
 

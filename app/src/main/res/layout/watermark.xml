@@ -8,19 +8,20 @@
     <ImageView
         android:alpha="0.5"
         android:id="@+id/waterMark"
-        android:layout_centerInParent="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="120dp"
         android:src="@drawable/watermark"/>
 
-    <TextView
-        android:id="@+id/phoneTextView"
-        android:layout_marginTop="32dp"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/waterMark"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/colorText"
-        android:text="010-2075-3912"/>
+    <!--<TextView-->
+        <!--android:id="@+id/phoneTextView"-->
+        <!--android:layout_marginTop="32dp"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_below="@+id/waterMark"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:textColor="@color/colorText"-->
+        <!--android:text="010-2075-3912"/>-->
 
 </RelativeLayout>
