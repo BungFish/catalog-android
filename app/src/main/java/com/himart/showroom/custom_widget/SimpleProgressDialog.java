@@ -1,4 +1,4 @@
-package com.slogup.catalog.custom_widget;
+package com.himart.showroom.custom_widget;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -10,7 +10,7 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
-import com.slogup.catalog.R;
+import com.himart.showroom.R;
 
 public class SimpleProgressDialog extends ProgressDialog {
 

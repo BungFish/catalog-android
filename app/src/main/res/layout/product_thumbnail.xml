@@ -34,6 +34,14 @@
         android:textColor="@color/colorText"
         android:textSize="12dp" />
 
+    <ImageView
+        android:id="@+id/checkImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/circle"
+        android:padding="8dp"
+        android:layout_alignParentRight="true"/>
+
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="40dp"

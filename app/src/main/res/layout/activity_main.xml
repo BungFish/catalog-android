@@ -4,19 +4,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorBackground"
-    tools:context="com.slogup.catalog.MainActivity">
+    tools:context="com.himart.showroom.MainActivity">
 
     <FrameLayout
         android:id="@+id/shareLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.slogup.catalog.custom_widget.SurfacePreview
+        <com.himart.showroom.custom_widget.SurfacePreview
             android:id="@+id/surfaceView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <com.slogup.catalog.custom_widget.ScalableImageView
+        <com.himart.showroom.custom_widget.ScalableImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -29,10 +29,10 @@
         android:layout_height="wrap_content"
         android:background="@drawable/top_gradation"
         android:orientation="horizontal"
-        android:paddingBottom="24dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingTop="16dp">
+        android:paddingBottom="20dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="20dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -48,7 +48,7 @@
                     android:id="@+id/manufacturer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="쇼룸"
+                    android:text="삼성전자"
                     android:textColor="@color/colorText"
                     android:textSize="20sp" />
 
@@ -56,18 +56,26 @@
                     android:id="@+id/productName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
                     android:layout_marginLeft="16dp"
-                    android:text=""
+                    android:text="RF10K9950S5"
                     android:textColor="@color/colorText"
-                    android:textSize="18sp" />
+                    android:textSize="16sp" />
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="6dp"
+                android:background="@color/colorText" />
 
             <TextView
                 android:id="@+id/productDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text=""
+                android:layout_marginTop="10dp"
+                android:alpha="0.8"
+                android:text="912x937x1,7777(950l)"
                 android:textColor="@color/colorText"
                 android:textSize="14sp" />
         </LinearLayout>
@@ -168,6 +176,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="가까운매장찾기"
+                    android:textSize="14sp"
                     android:textColor="@color/colorText" />
 
                 <TextView
@@ -178,7 +187,7 @@
                     android:gravity="center"
                     android:text="캡쳐하기"
                     android:textColor="@color/colorText"
-                    android:textSize="14dp"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -187,6 +196,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="고객센터연결"
+                    android:textSize="14sp"
                     android:textColor="@color/colorText" />
             </LinearLayout>
         </LinearLayout>

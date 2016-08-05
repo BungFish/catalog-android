@@ -1,26 +1,19 @@
-package com.slogup.catalog.custom_widget;
+package com.himart.showroom.custom_widget;
 
 import android.app.Activity;
 import android.content.Context;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.graphics.Point;
-import android.graphics.Rect;
-import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import com.slogup.catalog.R;
+import com.himart.showroom.R;
 
-import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 /**

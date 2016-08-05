@@ -1,10 +1,12 @@
-package com.slogup.catalog.models;
+package com.himart.showroom.models;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Metadata {
     JSONObject std;
+
+    public Metadata() {}
 
     public Metadata(JSONObject meta) {
 
@@ -36,4 +38,11 @@ public class Metadata {
         return null;
     }
 
+    public JSONObject getStd() {
+        return std;
+    }
+
+    public void setStd(JSONObject std) {
+        this.std = std;
+    }
 }

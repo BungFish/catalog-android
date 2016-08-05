@@ -1,4 +1,4 @@
-package com.slogup.catalog.custom_widget;
+package com.himart.showroom.custom_widget;
 
 import android.content.Context;
 import android.util.AttributeSet;

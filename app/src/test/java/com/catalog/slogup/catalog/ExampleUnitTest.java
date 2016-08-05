@@ -1,4 +1,4 @@
-package com.slogup.catalog;
+package com.himart.showroom;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package com.slogup.catalog;
+package com.himart.showroom;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

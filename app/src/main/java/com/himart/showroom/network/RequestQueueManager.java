@@ -1,4 +1,4 @@
-package com.slogup.catalog.network;
+package com.himart.showroom.network;
 
 import android.content.Context;
 

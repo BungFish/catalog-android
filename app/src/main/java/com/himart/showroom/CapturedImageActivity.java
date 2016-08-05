@@ -1,4 +1,4 @@
-package com.slogup.catalog;
+package com.himart.showroom;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -17,11 +17,11 @@ public class CapturedImageActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_captured_image);
+        setContentView(com.himart.showroom.R.layout.activity_captured_image);
 
         Intent intent = getIntent();
 
-        capturedImageView = (ImageView) findViewById(R.id.capturedImageView);
+        capturedImageView = (ImageView) findViewById(com.himart.showroom.R.id.capturedImageView);
         Picasso.with(this).load(Uri.parse("file://" + intent.getStringExtra("path"))).into(capturedImageView);
     }
 

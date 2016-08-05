@@ -1,4 +1,4 @@
-package com.slogup.catalog.models;
+package com.himart.showroom.models;
 
 /**
  * Created by CharmSae on 7/22/16.

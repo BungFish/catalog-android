@@ -1,14 +1,10 @@
-package com.slogup.catalog.custom_widget;
+package com.himart.showroom.custom_widget;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Matrix;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;

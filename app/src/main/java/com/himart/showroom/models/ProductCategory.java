@@ -1,4 +1,4 @@
-package com.slogup.catalog.models;
+package com.himart.showroom.models;
 
 public class ProductCategory {
 

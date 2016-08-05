@@ -1,12 +1,13 @@
-package com.slogup.catalog;
+package com.himart.showroom;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 
-import com.slogup.catalog.models.Product;
-import com.slogup.catalog.network.APIConstants;
+import com.himart.showroom.manager.AppManager;
+import com.himart.showroom.models.Product;
+import com.himart.showroom.network.APIConstants;
 
 import java.text.NumberFormat;
 
@@ -15,7 +16,7 @@ public class CommonHelper {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context)
                 .setMessage(msg)
-                .setNegativeButton(context.getString(R.string.cancel), new AlertDialog.OnClickListener() {
+                .setNegativeButton(context.getString(com.himart.showroom.R.string.cancel), new AlertDialog.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -52,7 +53,7 @@ public class CommonHelper {
         }
 
         if (actionTitle != null && negativeCallback != null) {
-            builder.setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            builder.setNegativeButton(context.getString(com.himart.showroom.R.string.finish), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     negativeCallback.onClick(null);
@@ -61,6 +62,7 @@ public class CommonHelper {
             });
         }
 
+        builder.setCancelable(false);
         builder.show();
     }
 
@@ -74,11 +76,29 @@ public class CommonHelper {
 //    }
 
     public static String imageUrlFormatter(Product product, int tempPosition) {
-        return APIConstants.ROOT_URL_DEVELOPMENT + "uploads/" + product.getProductImageArrayList().get(tempPosition).getImageUrl();
+        if (product.getProductImageArrayList().size() > 0) {
+            if (AppManager.isDebug) {
+                return APIConstants.ROOT_URL_DEVELOPMENT + AppManager.meta.getRootUrl() + product.getProductImageArrayList().get(tempPosition).getImageUrl();
+            } else {
+                return APIConstants.ROOT_URL_PRODUCTION + AppManager.meta.getRootUrl() + product.getProductImageArrayList().get(tempPosition).getImageUrl();
+            }
+        } else {
+            return APIConstants.ROOT_URL_DEVELOPMENT;
+        }
     }
 
     public static String thumbnailUrlFormatter(Product product, int tempPosition) {
-        return APIConstants.ROOT_URL_DEVELOPMENT + "uploads/" + product.getProductImageArrayList().get(tempPosition).getSmallImageUrlName();
+
+        if (product.getProductImageArrayList().size() > 0) {
+            if (AppManager.isDebug) {
+                return APIConstants.ROOT_URL_DEVELOPMENT + AppManager.meta.getRootUrl() + product.getProductImageArrayList().get(tempPosition).getSmallImageUrlName();
+            } else {
+                return APIConstants.ROOT_URL_PRODUCTION + AppManager.meta.getRootUrl() + product.getProductImageArrayList().get(tempPosition).getSmallImageUrlName();
+            }
+        } else {
+            return APIConstants.ROOT_URL_DEVELOPMENT;
+        }
+
     }
 
 }

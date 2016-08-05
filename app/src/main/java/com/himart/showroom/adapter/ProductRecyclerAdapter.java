@@ -1,4 +1,4 @@
-package com.slogup.catalog.adapter;
+package com.himart.showroom.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -8,10 +8,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.slogup.catalog.CommonHelper;
-import com.slogup.catalog.R;
-import com.slogup.catalog.models.Product;
+import com.himart.showroom.CommonHelper;
+import com.himart.showroom.R;
+import com.himart.showroom.models.Product;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -57,12 +58,18 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter<ProductRecycler
 
             @Override
             public void onError() {
-
+                Toast.makeText(mContext, "썸네일 로드에 실패하였습니다.", Toast.LENGTH_SHORT).show();
             }
         });
 
         holder.manufacturerTextView.setText(product.getManufacturer());
         holder.productNameTextView.setText(product.getProductName());
+
+        if (selectedPosition == position) {
+            holder.checkImageView.setVisibility(View.VISIBLE);
+        } else {
+            holder.checkImageView.setVisibility(View.GONE);
+        }
 
     }
 
@@ -80,13 +87,16 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter<ProductRecycler
         private final TextView manufacturerTextView;
         private final TextView productNameTextView;
         private final ImageView imageView;
+        private final ImageView checkImageView;
         private final ProgressBar progressBarProgressBar;
+
 
         public MyViewHolder(View itemView) {
             super(itemView);
             imageView = (ImageView) itemView.findViewById(R.id.imageView);
             manufacturerTextView = (TextView) itemView.findViewById(R.id.manufacturerTextView);
             productNameTextView = (TextView) itemView.findViewById(R.id.productNameTextView);
+            checkImageView = (ImageView) itemView.findViewById(R.id.checkImageView);
 
             progressBarProgressBar = (ProgressBar) itemView.findViewById(R.id.progressBar);
 
@@ -104,7 +114,6 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter<ProductRecycler
     }
 
     public interface ClickListener {
-
         void itemClick(View view, int position);
     }
 

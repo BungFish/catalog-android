@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorBackground"
-    tools:context="com.slogup.catalog.CapturedImageActivity">
+    tools:context="com.himart.showroom.CapturedImageActivity">
 
     <ImageView
         android:id="@+id/capturedImageView"

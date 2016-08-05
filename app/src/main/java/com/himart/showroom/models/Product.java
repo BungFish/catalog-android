@@ -1,4 +1,4 @@
-package com.slogup.catalog.models;
+package com.himart.showroom.models;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -8,10 +8,10 @@ import java.util.ArrayList;
 
 public class Product {
 
-    private String productName;
-    private String description;
-    private String manufacturer;
-    private int price;
+    private String productName = "";
+    private String description = "";
+    private String manufacturer = "";
+    private int price = 0;
     private ProductCategory productCategory;
     private ArrayList<ProductImage> productImageArrayList = new ArrayList<>();
 

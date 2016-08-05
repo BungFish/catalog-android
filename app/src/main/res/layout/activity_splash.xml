@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorText"
-    tools:context="com.slogup.catalog.SplashActivity">
+    tools:context="com.himart.showroom.SplashActivity">
 
     <ImageView
         android:id="@+id/splashImageView"

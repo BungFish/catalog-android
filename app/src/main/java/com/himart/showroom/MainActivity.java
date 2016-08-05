@@ -1,4 +1,4 @@
-package com.slogup.catalog;
+package com.himart.showroom;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -14,7 +14,9 @@ import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
+import android.media.AudioManager;
 import android.media.MediaActionSound;
+import android.media.MediaPlayer;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -39,15 +41,15 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.slogup.catalog.adapter.ProductRecyclerAdapter;
-import com.slogup.catalog.custom_widget.ScalableImageView;
-import com.slogup.catalog.custom_widget.SimpleProgressDialog;
-import com.slogup.catalog.custom_widget.SurfacePreview;
-import com.slogup.catalog.manager.AppManager;
-import com.slogup.catalog.models.Product;
-import com.slogup.catalog.models.ProductCategory;
-import com.slogup.catalog.network.APIConstants;
-import com.slogup.catalog.network.APIRequester;
+import com.himart.showroom.adapter.ProductRecyclerAdapter;
+import com.himart.showroom.custom_widget.ScalableImageView;
+import com.himart.showroom.custom_widget.SimpleProgressDialog;
+import com.himart.showroom.custom_widget.SurfacePreview;
+import com.himart.showroom.manager.AppManager;
+import com.himart.showroom.models.Product;
+import com.himart.showroom.models.ProductCategory;
+import com.himart.showroom.network.APIConstants;
+import com.himart.showroom.network.APIRequester;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -103,18 +105,19 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
     private boolean isViewInit = false;
     private LinearLayout topLayout;
     private RelativeLayout countLayout;
+    private MediaPlayer _shootMP;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mSimpleProgressDialog = new SimpleProgressDialog(this);
-        slideInFromBottom = AnimationUtils.loadAnimation(this, R.anim.slide_in_from_bottom);
+        slideInFromBottom = AnimationUtils.loadAnimation(this, com.himart.showroom.R.anim.slide_in_from_bottom);
 
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        setContentView(R.layout.activity_main);
+        setContentView(com.himart.showroom.R.layout.activity_main);
 
-        productRecyclerView = (RecyclerView) findViewById(R.id.product_list);
+        productRecyclerView = (RecyclerView) findViewById(com.himart.showroom.R.id.product_list);
         LinearLayoutManager mMyHamLinearLayoutManager = new LinearLayoutManager(this);
         mMyHamLinearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         mMyHamLinearLayoutManager.setSmoothScrollbarEnabled(true);
@@ -124,29 +127,29 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
         productRecyclerAdapter.setClickListener(this);
         productRecyclerView.setAdapter(productRecyclerAdapter);
 
-        manufacturerTextView = (TextView) findViewById(R.id.manufacturer);
-        productNameTextView = (TextView) findViewById(R.id.productName);
-        productDescriptionTextView = (TextView) findViewById(R.id.productDescription);
+        manufacturerTextView = (TextView) findViewById(com.himart.showroom.R.id.manufacturer);
+        productNameTextView = (TextView) findViewById(com.himart.showroom.R.id.productName);
+        productDescriptionTextView = (TextView) findViewById(com.himart.showroom.R.id.productDescription);
 
-        productCountTextView = (TextView) findViewById(R.id.productCount);
+        productCountTextView = (TextView) findViewById(com.himart.showroom.R.id.productCount);
 
-        shareLayout = (FrameLayout) findViewById(R.id.shareLayout);
-        captureButton = (ImageView) findViewById(R.id.captureButton);
-        openGalleryButton = (Button) findViewById(R.id.openGalleryButton);
-        categoryButton = (Button) findViewById(R.id.categoryButton);
+        shareLayout = (FrameLayout) findViewById(com.himart.showroom.R.id.shareLayout);
+        captureButton = (ImageView) findViewById(com.himart.showroom.R.id.captureButton);
+        openGalleryButton = (Button) findViewById(com.himart.showroom.R.id.openGalleryButton);
+        categoryButton = (Button) findViewById(com.himart.showroom.R.id.categoryButton);
 //        previousImageButton = (ImageView) findViewById(R.id.previousImageButton);
 //        nextImageButton = (ImageView) findViewById(R.id.nextImageButton);
-        mImageView = (ScalableImageView) findViewById(R.id.imageView);
+        mImageView = (ScalableImageView) findViewById(com.himart.showroom.R.id.imageView);
 
-        locationButton = (ImageView) findViewById(R.id.locationButton);
-        phoneButton = (ImageView) findViewById(R.id.phoneButton);
+        locationButton = (ImageView) findViewById(com.himart.showroom.R.id.locationButton);
+        phoneButton = (ImageView) findViewById(com.himart.showroom.R.id.phoneButton);
 
-        topLayout = (LinearLayout) findViewById(R.id.topLayout);
-        countLayout = (RelativeLayout) findViewById(R.id.countLayout);
+        topLayout = (LinearLayout) findViewById(com.himart.showroom.R.id.topLayout);
+        countLayout = (RelativeLayout) findViewById(com.himart.showroom.R.id.countLayout);
 
-        drawableArray.add(getResources().getDrawable(R.drawable.sample));
-        drawableArray.add(getResources().getDrawable(R.drawable.card_normal));
-        drawableArray.add(getResources().getDrawable(R.drawable.card_plus));
+        drawableArray.add(getResources().getDrawable(com.himart.showroom.R.drawable.sample));
+        drawableArray.add(getResources().getDrawable(com.himart.showroom.R.drawable.card_normal));
+        drawableArray.add(getResources().getDrawable(com.himart.showroom.R.drawable.card_plus));
 
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -186,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
         locationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CommonHelper.showDialog(_this, getResources().getString(R.string.himart_mobile), "열기", new View.OnClickListener() {
+                CommonHelper.showDialog(_this, getResources().getString(com.himart.showroom.R.string.himart_mobile), "열기", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://m.e-himart.co.kr/app/common/offLineShopSearchTab1"));
@@ -199,10 +202,10 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
         phoneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CommonHelper.showDialog(_this, getResources().getString(R.string.customer_center), "연결", new View.OnClickListener() {
+                CommonHelper.showDialog(_this, getResources().getString(com.himart.showroom.R.string.customer_center), "연결", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Uri number = Uri.parse("tel:" + String.valueOf(R.string.customer_center_num));
+                        Uri number = Uri.parse("tel:" + getResources().getString(com.himart.showroom.R.string.customer_center_num));
                         Intent dial = new Intent(Intent.ACTION_DIAL, number);
                         startActivity(dial);
                     }
@@ -383,6 +386,17 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
             sound = new MediaActionSound();
             sound.play(MediaActionSound.SHUTTER_CLICK);
+        } else {
+            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            int volume = audioManager.getStreamVolume(AudioManager.STREAM_SYSTEM);
+
+            audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, 1, AudioManager.FLAG_PLAY_SOUND);
+            if (_shootMP == null) {
+                _shootMP = MediaPlayer.create(this, Uri.parse("file:///system/media/audio/ui/camera_click.ogg"));
+            }
+            if (_shootMP != null) {
+                _shootMP.start();
+            }
         }
 
     }
@@ -496,7 +510,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
             public void onError(Error error) {
                 mSimpleProgressDialog.dismiss();
                 Log.i(LOG_TAG, error.toString());
-                CommonHelper.showDialog(_this, error.getMessage(), getResources().getString(R.string.retry), new View.OnClickListener() {
+                CommonHelper.showDialog(_this, error.getMessage(), getResources().getString(com.himart.showroom.R.string.retry), new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         mSimpleProgressDialog.show();
@@ -539,7 +553,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
             public void onError(Error error) {
                 mSimpleProgressDialog.dismiss();
                 Log.i(LOG_TAG, error.toString());
-                CommonHelper.showDialog(_this, error.getMessage(), getResources().getString(R.string.retry), new View.OnClickListener() {
+                CommonHelper.showDialog(_this, error.getMessage(), getResources().getString(com.himart.showroom.R.string.retry), new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         mSimpleProgressDialog.show();
@@ -551,6 +565,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
     }
 
     public void setMainView() {
+        Log.i("====", "====");
         mSimpleProgressDialog.show();
 
         int currentPosition = productRecyclerAdapter.getSelectedPosition();
@@ -595,6 +610,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
 
             @Override
             public void onError() {
+                isViewInit = true;
                 mSimpleProgressDialog.dismiss();
                 Toast.makeText(_this, "이미지 로드에 실패하였습니다.", Toast.LENGTH_SHORT).show();
             }
@@ -607,11 +623,12 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
     @Override
     public void itemClick(View view, int position) {
         productRecyclerAdapter.setSelectedPosition(position);
+        productRecyclerAdapter.notifyDataSetChanged();
         setMainView();
     }
 
     private Bitmap createWaterMarkBitmap(int width, int height) {
-        RelativeLayout watermark = (RelativeLayout) LayoutInflater.from(this).inflate(R.layout.watermark, null);
+        RelativeLayout watermark = (RelativeLayout) LayoutInflater.from(this).inflate(com.himart.showroom.R.layout.watermark, null);
         watermark.setLayoutParams(new RelativeLayout.LayoutParams(width, height));
 
         watermark.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
@@ -635,7 +652,7 @@ public class MainActivity extends AppCompatActivity implements ProductRecyclerAd
             super.onBackPressed();
 
         } else {
-            Toast.makeText(getApplicationContext(), getString(R.string.one_more_click_findish_app),
+            Toast.makeText(getApplicationContext(), getString(com.himart.showroom.R.string.one_more_click_findish_app),
                     Toast.LENGTH_SHORT).show();
         }
 
