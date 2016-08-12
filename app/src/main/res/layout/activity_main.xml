@@ -227,10 +227,11 @@
         </RelativeLayout>
 
         <android.support.v7.widget.RecyclerView
+            android:paddingTop="8dp"
             android:id="@+id/product_list"
             android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:background="@color/colorBackground"
+            android:layout_height="128dp"
+            android:background="@drawable/pattern"
             android:clipToPadding="false" />
     </LinearLayout>
 
